@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+__all__ = ["build_kwh_checkpoint"]
+
 from veritas.crypto import OracleKey
 from veritas.nostr import NostrEvent, build_checkpoint_event
 

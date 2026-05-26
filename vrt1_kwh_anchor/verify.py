@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+__all__ = ["verify_kwh_inclusion", "verify_anchor_binding", "verify_full_chain"]
+
 from veritas.anchor import parse_op_return_payload
 from veritas.merkle import MerkleProof, verify_merkle_proof
 from vrt1_kwh.attestation import SignedMeasurement, measurement_digest

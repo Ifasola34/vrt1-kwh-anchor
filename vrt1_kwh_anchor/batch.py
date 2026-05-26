@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+__all__ = ["BatchResult", "batch_measurements", "batch_from_directory"]
+
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -17,8 +19,8 @@ class BatchResult:
     epoch: int
     root: bytes
     leaf_count: int
-    digests: list[bytes]
-    proofs: list[MerkleProof]
+    digests: tuple[bytes, ...]
+    proofs: tuple[MerkleProof, ...]
     op_return_payload: bytes
     anchor_tx: AnchorTx | None = None
 
@@ -49,10 +51,10 @@ def batch_measurements(
     if invalid:
         raise ValueError(f"{len(invalid)} measurement(s) have invalid signatures")
 
-    digests = [measurement_digest(m.measurement) for m in measurements]
+    digests = tuple(measurement_digest(m.measurement) for m in measurements)
     tree = MerkleTree(digests)
 
-    proofs = [tree.prove(i) for i in range(len(digests))]
+    proofs = tuple(tree.prove(i) for i in range(len(digests)))
 
     payload = build_op_return_payload(
         merkle_root=tree.root,
