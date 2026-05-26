@@ -42,6 +42,9 @@ def batch_measurements(
     if not measurements:
         raise ValueError("cannot batch empty measurement list")
 
+    if bool(key) != bool(utxo):
+        raise ValueError("both key and utxo must be provided for anchor construction, or neither")
+
     invalid = [m for m in measurements if not m.verify()]
     if invalid:
         raise ValueError(f"{len(invalid)} measurement(s) have invalid signatures")
@@ -88,8 +91,13 @@ def batch_from_directory(
     utxo: Utxo | None = None,
     fee_sats: int = 500,
 ) -> BatchResult:
-    """Load a kWh oracle's output directory and batch all measurements."""
-    corpus = load_corpus(data_dir)
+    """Load a kWh oracle's output directory and batch all measurements.
+
+    Raises ValueError if any files fail to parse (no silent data loss).
+    """
+    corpus, errors = load_corpus(data_dir, return_errors=True)
+    if errors:
+        raise ValueError(f"{len(errors)} file(s) failed to parse in {data_dir}")
     if not corpus:
         raise ValueError(f"no measurements found in {data_dir}")
     return batch_measurements(

@@ -34,13 +34,23 @@ def verify_anchor_binding(
     """Verify a Merkle proof is bound to a Bitcoin anchor.
 
     Checks:
-    1. OP_RETURN parses as valid VRT1 payload
-    2. Root in payload matches proof root
-    3. Leaf count matches proof size
-    4. Epoch matches expected
+    1. Hex parses correctly
+    2. OP_RETURN parses as valid VRT1 payload
+    3. Merkle proof is internally valid (siblings hash to root)
+    4. Root in payload matches proof root
+    5. Leaf count matches proof size
+    6. Epoch matches expected
     """
-    payload = bytes.fromhex(op_return_payload_hex)
-    parsed = parse_op_return_payload(payload)
+    try:
+        payload = bytes.fromhex(op_return_payload_hex)
+    except ValueError:
+        return False
+    try:
+        parsed = parse_op_return_payload(payload)
+    except ValueError:
+        return False
+    if not verify_merkle_proof(proof):
+        return False
     if parsed["merkle_root"] != proof.root:
         return False
     if parsed["leaf_count"] != proof.size:
@@ -48,3 +58,19 @@ def verify_anchor_binding(
     if parsed["epoch"] != expected_epoch:
         return False
     return True
+
+
+def verify_full_chain(
+    measurement: SignedMeasurement,
+    proof: MerkleProof,
+    op_return_payload_hex: str,
+    expected_epoch: int,
+) -> bool:
+    """Verify the complete chain: measurement → Merkle → Bitcoin anchor.
+
+    Composes verify_kwh_inclusion and verify_anchor_binding into a single
+    call that ensures a specific measurement is provably anchored on-chain.
+    """
+    if not verify_kwh_inclusion(measurement, proof):
+        return False
+    return verify_anchor_binding(proof, op_return_payload_hex, expected_epoch)
