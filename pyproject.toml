@@ -1,0 +1,24 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "vrt1-kwh-anchor"
+version = "0.1.0"
+description = "Batch kWh attestations through the VRT1 Merkle/Bitcoin-anchor pipeline"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+dependencies = [
+    "veritas @ git+https://github.com/Ifasola34/veritas.git",
+    "vrt1-kwh @ git+https://github.com/Ifasola34/vrt1-kwh.git",
+]
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
