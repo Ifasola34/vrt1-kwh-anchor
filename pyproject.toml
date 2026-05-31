@@ -10,7 +10,7 @@ readme = "README.md"
 license = "MIT"
 requires-python = ">=3.10"
 dependencies = [
-    "veritas @ git+https://github.com/Ifasola34/veritas.git",
+    "veritas @ git+https://github.com/Ifasola34/veritas.git@v0.1.0",
     "vrt1-kwh @ git+https://github.com/Ifasola34/vrt1-kwh.git",
 ]
 
